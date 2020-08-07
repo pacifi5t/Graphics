@@ -5,22 +5,22 @@ namespace Graphics
 {
     public class Originator //Contains ever-changing info about all figures in string.
     {                       //This info can be exported as Checkpoint or a list of figures
-        private string _state { get; set; }
+        private string State { get; set; }
         
         public Originator()
         {
-            _state = String.Empty;
+            State = String.Empty;
         }
         
         public Originator(Checkpoint checkpoint)
         {
-            _state = checkpoint.State;
+            State = checkpoint.State;
         }
 
         public List<IShape> Export()
         {
             List<IShape> exportable = new List<IShape>();
-            string[] figures = _state.Split('\n');
+            string[] figures = State.Split('\n');
             foreach (string str in figures)
             {
                 IShape figure;
@@ -57,9 +57,9 @@ namespace Graphics
         
         public void Load(Checkpoint checkpoint)
         {
-            _state = checkpoint.State;
+            State = checkpoint.State;
         }
         
-        public Checkpoint Save() => new Checkpoint(_state);
+        public Checkpoint Save() => new Checkpoint(State);
     }
 }

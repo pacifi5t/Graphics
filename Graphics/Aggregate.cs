@@ -71,10 +71,10 @@ namespace Graphics
             }
         }
 
-        public void ConvertFromString(string data)
+        public void ConvertFromString(string str)
         {
-            int size = Convert.ToInt32(data[2]) - 48;
-            string block = data.Substring(4);
+            int size = Convert.ToInt32(str[2]) - 48;
+            string block = str.Substring(4);
             block = block.Substring(0, block.Length - 1);
             
             for (int i = 0; i < size; i++)

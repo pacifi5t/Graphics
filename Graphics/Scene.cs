@@ -12,9 +12,9 @@ namespace Graphics
         {
             get
             {
-                if (_instance == null)
-                    _instance = new Scene();
-                return _instance;
+                if (instance == null)
+                    instance = new Scene();
+                return instance;
             }
         }
 
@@ -30,6 +30,6 @@ namespace Graphics
             Window.SetFramerateLimit(150);
         }
         
-        private static Scene _instance;
+        private static Scene instance;
     }
 }

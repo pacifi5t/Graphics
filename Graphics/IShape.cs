@@ -10,7 +10,7 @@ namespace Graphics
         public bool CrossedBorder();
         public void ChangeVisibility(); //Visible - invisible
         public void Deform(); //Move randomly some vertices
-        public void ConvertFromString(string data); //Recreates object from string
+        public void ConvertFromString(string str); //Recreates object from string
         public bool Hover(Vector2i mousePosition); //Mouse intersects shape
         public bool Intersects(IShape other);
         public void Move(Vector2f offset);

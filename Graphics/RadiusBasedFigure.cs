@@ -8,23 +8,14 @@ namespace Graphics
     {
         public float Radius { get; protected set; }
         
-        public override void ConvertFromString(string data)
+        public override void ConvertFromString(string str)
         {
-            data = data.Substring(2);
-            string[] fields = data.Split('-', ',');
-            Radius = Convert.ToSingle(fields[0]);
-            Width = Radius * 2;
-            Height = Radius * 2;
-            ColorDefault.R = Convert.ToByte(fields[1]);
-            ColorDefault.G = Convert.ToByte(fields[2]);
-            ColorDefault.B = Convert.ToByte(fields[3]);
-            ColorCurrent = ColorDefault;
-            ColorReversed = Color.White - ColorDefault;
-            ColorReversed.A = 255;
-            Vector2f position;
-            position.X = Convert.ToSingle(fields[4]);
-            position.Y = Convert.ToSingle(fields[5]);
-            Position = position;
+            str = str.Substring(2);
+            string[] data = str.Split('-', ',');
+            Radius = Convert.ToSingle(data[0]);
+            Width = Height = Radius * 2;
+            
+            InitializeColorAndPosition(data);
             InitializeVertices();
         }
 
@@ -33,8 +24,8 @@ namespace Graphics
             Radius = 0;
         }
         
-        protected RadiusBasedFigure(float radius, Color color, Vector2f position) : base(radius * 2, radius * 2,
-            color, position)
+        protected RadiusBasedFigure(float radius, Color color, Vector2f position) : base(radius * 2,
+            radius * 2, color, position)
         {
             Radius = radius;
         }

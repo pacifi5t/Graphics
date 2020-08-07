@@ -6,7 +6,7 @@ namespace Graphics
 {
     public abstract class Figure : Drawable, IShape //Represents any shape that has finite set of vertices
     {
-        public bool Activated { get; protected set; }
+        public bool Activated { get; private set; }
         public Vector2f Position { get; protected set; }
         public float Width { get; protected set; }
         public float Height { get; protected set; }
@@ -61,35 +61,27 @@ namespace Graphics
             Random random = new Random();
             for (uint i = 0; i < Vertices.Length; i++)
             {
-                int vertexID = random.Next(0, Vertices.Length - 1);
+                int vertexId = random.Next(0, Vertices.Length - 1);
                 int force = random.Next(-30, 30);
                 if (i % 2 == 0)
                 {
-                    Vertices[vertexID].Position.X += force;
+                    Vertices[vertexId].Position.X += force;
                 }
                 else
                 {
-                    Vertices[vertexID].Position.Y += force;
+                    Vertices[vertexId].Position.Y += force;
                 }
             }
         }
         
-        public virtual void ConvertFromString(string data)
+        public virtual void ConvertFromString(string str)
         {
-            data = data.Substring(2);
-            string[] fields = data.Split('-', ',');
-            Width = Convert.ToSingle(fields[0]);
-            Height = Convert.ToSingle(fields[1]);
-            ColorDefault.R = Convert.ToByte(fields[2]);
-            ColorDefault.G = Convert.ToByte(fields[3]);
-            ColorDefault.B = Convert.ToByte(fields[4]);
-            ColorCurrent = ColorDefault;
-            ColorReversed = Color.White - ColorDefault;
-            ColorReversed.A = 255;
-            Vector2f position;
-            position.X = Convert.ToSingle(fields[5]);
-            position.Y = Convert.ToSingle(fields[6]);
-            Position = position;
+            str = str.Substring(2);
+            string[] data = str.Split('-', ',');
+            Width = Convert.ToSingle(data[0]);
+            Height = Convert.ToSingle(data[1]);
+            
+            InitializeColorAndPosition(data);
             InitializeVertices();
         }
 
@@ -161,6 +153,20 @@ namespace Graphics
             }
         }
 
+        protected void InitializeColorAndPosition(string[] data)
+        {
+            ColorDefault.R = Convert.ToByte(data[^5]);
+            ColorDefault.G = Convert.ToByte(data[^4]);
+            ColorDefault.B = Convert.ToByte(data[^3]);
+            ColorCurrent = ColorDefault;
+            ColorReversed = Color.White - ColorDefault;
+            ColorReversed.A = 255;
+            Vector2f position;
+            position.X = Convert.ToSingle(data[^2]);
+            position.Y = Convert.ToSingle(data[^1]);
+            Position = position;
+        }
+        
         protected Color ColorDefault;
         protected Color ColorReversed;
         protected Vertex[] Vertices;

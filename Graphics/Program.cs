@@ -13,28 +13,28 @@ namespace Graphics
     static class Program
     {
         private const string FilePath = "LastCheckpoint.txt";
-        private static bool _trailEnabled;
-        private static int _degrees; //Needed for MoveRound method
-        private static List<IShape> _shapes;
-        private static Originator _originator;
-        private static Caretaker _caretaker;
+        private static bool trailEnabled;
+        private static int degrees; //Needed for MoveRound method
+        private static List<IShape> shapes;
+        private static Originator originator;
+        private static Caretaker caretaker;
 
         static void Main()
         {
             DisplayStartingMessage();
-            _shapes = new List<IShape>();
-            _originator = new Originator();
+            shapes = new List<IShape>();
+            originator = new Originator();
 
             if (!LoadFromFile()) //Attempt to load from file. If failed, generating new figures
             {
-                _shapes = GenerateRandomShapes();
-                _originator = new Originator(new Checkpoint(ConvertShapesToString()));
-                _caretaker = new Caretaker(_originator);
+                shapes = GenerateRandomShapes();
+                originator = new Originator(new Checkpoint(ConvertShapesToString()));
+                caretaker = new Caretaker(originator);
                 CreateCheckpoint();
             }
 
-            _trailEnabled = false;
-            _degrees = 0;
+            trailEnabled = false;
+            degrees = 0;
             Scene scene = Scene.Instance;
             Scene.Window.KeyPressed += HandleKeyboardInput;    //Event subscriptions
             Scene.Window.MouseButtonPressed += HandleMouseInput;
@@ -71,24 +71,24 @@ namespace Graphics
                 
                 if (IsKeyPressed(Key.R))
                 {
-                    foreach (IShape shape in _shapes.Where(shape => shape.Activated))
-                        shape.MoveRound(_degrees, new Vector2f(1, 1));
-                    _degrees++;
+                    foreach (IShape shape in shapes.Where(shape => shape.Activated))
+                        shape.MoveRound(degrees, new Vector2f(1, 1));
+                    degrees++;
                 }
 
                 CheckCollisions(); //Also switches colors
                 scene.LockWindow(); //Makes window impossible to remove or resize
-                if (!_trailEnabled) //Clear window before every frame?
+                if (!trailEnabled) //Clear window before every frame?
                 {
                     Scene.Window.Clear();
                 }
 
-                for (int i = _shapes.Count - 1; i >= 0; i--) //Display every figure in reversed order
+                for (int i = shapes.Count - 1; i >= 0; i--) //Display every figure in reversed order
                 {
-                    Scene.Window.Draw(_shapes[i] as Drawable); 
+                    Scene.Window.Draw(shapes[i] as Drawable); 
                 }
                 
-                _originator.Load(new Checkpoint(ConvertShapesToString())); //Change Originator state to relevant
+                originator.Load(new Checkpoint(ConvertShapesToString())); //Change Originator state to relevant
                 Scene.Window.Display();
             }
             
@@ -101,7 +101,7 @@ namespace Graphics
         {
             using (FileStream fileStream = new FileStream(FilePath, FileMode.Create))
             {
-                byte[] array = System.Text.Encoding.Default.GetBytes(_caretaker.GetLastCheckpoint().ToString());
+                byte[] array = System.Text.Encoding.Default.GetBytes(caretaker.GetLastCheckpoint().ToString());
                 fileStream.Write(array, 0, array.Length);
             }
 
@@ -110,7 +110,7 @@ namespace Graphics
 
         static void ChangeVisibility()
         {
-            foreach (IShape shape in _shapes)
+            foreach (IShape shape in shapes)
             {
                 if (shape.Activated)
                 {
@@ -123,9 +123,9 @@ namespace Graphics
 
         static void CheckCollisions()
         {
-            foreach (IShape one in _shapes)
+            foreach (IShape one in shapes)
             {
-                foreach (IShape another in _shapes.Where(another => one != another))
+                foreach (IShape another in shapes.Where(another => one != another))
                 {
                     one.ChangeColorToDefault();
                     if (one.Intersects(another))
@@ -140,7 +140,7 @@ namespace Graphics
         static string ConvertShapesToString()
         {
             string output = "";
-            foreach (IShape shape in _shapes)
+            foreach (IShape shape in shapes)
             {
                 output += shape + "\n";
             }
@@ -153,7 +153,7 @@ namespace Graphics
             List<IShape> removableList = new List<IShape>();
             Aggregate aggregate = new Aggregate();
 
-            foreach (IShape shape in _shapes)
+            foreach (IShape shape in shapes)
             {
                 if (shape.Activated)
                 {
@@ -164,23 +164,23 @@ namespace Graphics
 
             foreach (IShape removable in removableList)
             {
-                _shapes.Remove(removable);
+                shapes.Remove(removable);
             }
 
-            _shapes.Add(aggregate);
+            shapes.Add(aggregate);
             Console.WriteLine("Aggregate was created from selected shapes");
         }
 
         static void CreateCheckpoint() //Save state of all figures to one object
         {
-            _originator.Load(new Checkpoint(ConvertShapesToString()));
-            _caretaker.CreateCheckpoint();
+            originator.Load(new Checkpoint(ConvertShapesToString()));
+            caretaker.CreateCheckpoint();
             Console.WriteLine("Checkpoint created");
         }
 
         static void Deform()
         {
-            foreach (IShape shape in _shapes)
+            foreach (IShape shape in shapes)
             {
                 if (shape.Activated)
                 {
@@ -194,7 +194,7 @@ namespace Graphics
         static void DeselectShape(Vector2i mousePosition) //Or remove from list of shapes
         {
             IShape temp = null;
-            foreach (IShape shape in _shapes)
+            foreach (IShape shape in shapes)
                 if (shape.Hover(mousePosition))
                 {
                     temp = shape;
@@ -203,7 +203,7 @@ namespace Graphics
 
             if (temp != null)
             {
-                _shapes.Remove(temp);
+                shapes.Remove(temp);
             }
             Console.WriteLine("Shape removed");
         }
@@ -297,8 +297,8 @@ namespace Graphics
                     CreateCheckpoint();
                     break;
                 case Key.Z:
-                    _caretaker.StepBack();
-                    _shapes = _originator.Export();
+                    caretaker.StepBack();
+                    shapes = originator.Export();
                     Console.WriteLine("Undo");
                     break;
                 case Key.B:
@@ -308,12 +308,12 @@ namespace Graphics
                     LoadFromFile();
                     break;
                 case Key.Y:
-                    _caretaker.StepForward();
-                    _shapes = _originator.Export();
+                    caretaker.StepForward();
+                    shapes = originator.Export();
                     Console.WriteLine("Redo");
                     break;
                 case Key.T:
-                    _trailEnabled = !_trailEnabled;
+                    trailEnabled = !trailEnabled;
                     Console.WriteLine("Trail toggled");
                     break;
                 case Key.V:
@@ -352,10 +352,10 @@ namespace Graphics
                     data += t + "\n";
                 }
 
-                _originator.Load(new Checkpoint(data.Trim('\n')));
-                _caretaker = new Caretaker(_originator);
-                _caretaker.CreateCheckpoint();
-                _shapes = _originator.Export();
+                originator.Load(new Checkpoint(data.Trim('\n')));
+                caretaker = new Caretaker(originator);
+                caretaker.CreateCheckpoint();
+                shapes = originator.Export();
             }
             catch (Exception e)
             {
@@ -369,7 +369,7 @@ namespace Graphics
 
         static void MoveShapes(Vector2f offset)
         {
-            foreach (IShape shape in _shapes)
+            foreach (IShape shape in shapes)
             {
                 if (shape.Activated)
                 {
@@ -385,7 +385,7 @@ namespace Graphics
 
         static void SelectShape(Vector2i mousePosition)
         {
-            foreach (IShape shape in _shapes)
+            foreach (IShape shape in shapes)
             {
                 if (shape.Hover(mousePosition))
                 {
