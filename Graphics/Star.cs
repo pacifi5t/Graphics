@@ -10,8 +10,8 @@ namespace Graphics
 	    {
 		    Vertices = new Vertex[10];
 	    }
-	    
-        public Star(float radius, Color color, Vector2f position) : base(radius, color, position)
+
+	    private Star(float radius, Color color, Vector2f position) : base(radius, color, position)
         {
             Vertices = new Vertex[10];
             InitializeVertices();

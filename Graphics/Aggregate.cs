@@ -8,7 +8,7 @@ namespace Graphics
     public class Aggregate : Drawable, IShape
     {
         public bool Activated { get; private set; }
-        public List<IShape> FigureList { get; set; }
+        private List<IShape> FigureList { get; set; }
 
         public Aggregate()
         {
@@ -25,9 +25,9 @@ namespace Graphics
         {
             foreach (IShape figure in FigureList)
             {
-                if (figure is Aggregate)
+                if (figure is Aggregate aggregate)
                 {
-                    ((Aggregate) figure).Draw(target, states);
+                    aggregate.Draw(target, states);
                 }
                 else
                 {

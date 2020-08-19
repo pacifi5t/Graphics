@@ -1,5 +1,4 @@
-﻿using System;
-using SFML.Graphics;
+﻿using SFML.Graphics;
 using SFML.System;
 
 namespace Graphics
@@ -10,8 +9,8 @@ namespace Graphics
         {
             Vertices = new Vertex[4];
         }
-        
-        public Rectangle(float width, float height, Color color, Vector2f position) : base(width, height, color,
+
+        private Rectangle(float width, float height, Color color, Vector2f position) : base(width, height, color,
             position)
         {
             Vertices = new Vertex[4];

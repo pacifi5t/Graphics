@@ -11,7 +11,7 @@ namespace Graphics
             Vertices = new Vertex[60];
         }
 
-        public Circle(float radius, Color color, Vector2f position) : base(radius, color, position)
+        private Circle(float radius, Color color, Vector2f position) : base(radius, color, position)
         {
             Vertices = new Vertex[60];
             InitializeVertices();

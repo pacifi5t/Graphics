@@ -9,8 +9,8 @@ namespace Graphics
         {
             Vertices = new Vertex[3];
         }
-        
-        public Triangle(float width, float height, Color color, Vector2f position) : base(width, height, color,
+
+        private Triangle(float width, float height, Color color, Vector2f position) : base(width, height, color,
             position)
         {
             Vertices = new Vertex[3];

@@ -6,71 +6,71 @@ namespace Graphics
     {
         public Caretaker(Originator originator)
         {
-            _originator = originator;
+            this.originator = originator;
         }
 
         public void CreateCheckpoint()
         {
-            if (_checkpointsBack.Count == 0)
+            if (checkpointsBack.Count == 0)
             {
-                _checkpointsBack.Push(_originator.Save());
+                checkpointsBack.Push(originator.Save());
             }
             else
             {
-                Checkpoint temp = _originator.Save();
+                Checkpoint temp = originator.Save();
                 Checkpoint last = GetLastCheckpoint();
                 if (!Equals(temp, last))
                 {
-                    _checkpointsBack.Push(temp);
+                    checkpointsBack.Push(temp);
                 }
 
-                _checkpointsForward.Clear();
+                checkpointsForward.Clear();
             }
         }
         
         public void StepBack()
         {
-            if (_checkpointsBack.Count != 0)
+            if (checkpointsBack.Count != 0)
             {
-                Checkpoint temp = _checkpointsBack.Pop();
-                _checkpointsForward.Push(temp);
-                if (Equals(temp, _originator.Save()))
+                Checkpoint temp = checkpointsBack.Pop();
+                checkpointsForward.Push(temp);
+                if (Equals(temp, originator.Save()))
                 {
                     StepBack();
                 }
                 else
                 {
-                    _originator.Load(temp);
+                    originator.Load(temp);
                 }
             }
         }
 
         public void StepForward()
         {
-            if (_checkpointsForward.Count != 0)
+            if (checkpointsForward.Count != 0)
             {
-                Checkpoint temp = _checkpointsForward.Pop();
-                _checkpointsBack.Push(temp);
-                if (Equals(temp, _originator.Save()))
+                Checkpoint temp = checkpointsForward.Pop();
+                checkpointsBack.Push(temp);
+                if (Equals(temp, originator.Save()))
                 {
                     StepForward();
                 }
                 else
                 {
-                    _originator.Load(temp);
+                    originator.Load(temp);
                 }
             }
         }
 
         public Checkpoint GetLastCheckpoint()
         {
-            Checkpoint last = _checkpointsBack.Pop();
-            _checkpointsBack.Push(last);
+            Checkpoint last = checkpointsBack.Pop();
+            checkpointsBack.Push(last);
             return last;
         }
 
-        private Stack<Checkpoint> _checkpointsBack = new Stack<Checkpoint>(); //Checkpoints for undo operation
-        private Stack<Checkpoint> _checkpointsForward = new Stack<Checkpoint>(); //for redo
-        private Originator _originator;
+        private readonly Stack<Checkpoint> checkpointsBack = new Stack<Checkpoint>(); //Checkpoints for undo operation
+        private readonly Stack<Checkpoint> checkpointsForward = new Stack<Checkpoint>(); //for redo
+        private readonly Originator originator;
     }
 }

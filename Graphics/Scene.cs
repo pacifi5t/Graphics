@@ -10,12 +10,7 @@ namespace Graphics
 
         public static Scene Instance
         {
-            get
-            {
-                if (instance == null)
-                    instance = new Scene();
-                return instance;
-            }
+            get { return instance ??= new Scene(); }
         }
 
         public void LockWindow()

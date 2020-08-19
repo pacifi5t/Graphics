@@ -10,8 +10,8 @@ namespace Graphics
         {
             Vertices = new Vertex[36];
         }
-        
-        public Ellipse(float width, float height, Color color, Vector2f position) : base(width, height, color, position)
+
+        private Ellipse(float width, float height, Color color, Vector2f position) : base(width, height, color, position)
         {
             Vertices = new Vertex[36];
             InitializeVertices();
