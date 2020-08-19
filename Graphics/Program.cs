@@ -15,6 +15,7 @@ namespace Graphics
         private const string FilePath = "LastCheckpoint.txt";
         private static bool trailEnabled;
         private static int degrees; //Needed for MoveRound method
+        private static Scene scene;
         private static List<IShape> shapes;
         private static Originator originator;
         private static Caretaker caretaker;
@@ -22,8 +23,7 @@ namespace Graphics
         static void Main()
         {
             DisplayStartingMessage();
-            shapes = new List<IShape>();
-            originator = new Originator();
+            InitializeFields();
 
             if (!LoadFromFile()) //Attempt to load from file. If failed, generating new figures
             {
@@ -33,18 +33,16 @@ namespace Graphics
                 CreateCheckpoint();
             }
 
-            trailEnabled = false;
-            degrees = 0;
-            Scene scene = Scene.Instance;
-            Scene.Window.KeyPressed += HandleKeyboardInput;    //Event subscriptions
-            Scene.Window.MouseButtonPressed += HandleMouseInput;
+            Scene.Window.KeyPressed += WindowOnKeyPressed; //Event subscriptions
+            Scene.Window.MouseButtonPressed += WindowOnMouseButtonPressed;
             Scene.Window.Closed += WindowOnClosed;
 
             while (Scene.Window.IsOpen) //Mainloop
             {
                 Scene.Window.DispatchEvents();
                 Vector2f offset = new Vector2f(0, 0);
-                if (IsKeyPressed(Key.Up)) //Located here because these buttons can be held for long time
+
+                if (IsKeyPressed(Key.Up)) //Located here because these buttons can be held for a long time
                 {
                     offset += new Vector2f(0, -1);
                 }
@@ -68,7 +66,7 @@ namespace Graphics
                 {
                     MoveShapes(offset);
                 }
-                
+
                 if (IsKeyPressed(Key.R))
                 {
                     foreach (IShape shape in shapes.Where(shape => shape.Activated))
@@ -78,6 +76,7 @@ namespace Graphics
 
                 CheckCollisions(); //Also switches colors
                 scene.LockWindow(); //Makes window impossible to remove or resize
+                
                 if (!trailEnabled) //Clear window before every frame?
                 {
                     Scene.Window.Clear();
@@ -85,15 +84,15 @@ namespace Graphics
 
                 for (int i = shapes.Count - 1; i >= 0; i--) //Display every figure in reversed order
                 {
-                    Scene.Window.Draw(shapes[i] as Drawable); 
+                    Scene.Window.Draw(shapes[i] as Drawable);
                 }
-                
+
                 originator.Load(new Checkpoint(ConvertShapesToString())); //Change Originator state to relevant
                 Scene.Window.Display();
             }
-            
-            Scene.Window.KeyPressed -= HandleKeyboardInput;    //Event unsubscriptions
-            Scene.Window.MouseButtonPressed -= HandleMouseInput;
+
+            Scene.Window.KeyPressed -= WindowOnKeyPressed; //Event unsubscriptions
+            Scene.Window.MouseButtonPressed -= WindowOnMouseButtonPressed;
             Scene.Window.Closed -= WindowOnClosed;
         }
 
@@ -205,6 +204,7 @@ namespace Graphics
             {
                 shapes.Remove(temp);
             }
+
             Console.WriteLine("Shape removed");
         }
 
@@ -221,7 +221,7 @@ namespace Graphics
             Console.WriteLine("\n\nLogs\n");
         }
 
-        static List<IShape> GenerateRandomShapes() 
+        static List<IShape> GenerateRandomShapes()
         {
             List<IShape> list = new List<IShape>();
             Random random = new Random();
@@ -289,56 +289,13 @@ namespace Graphics
             return list;
         }
 
-        static void HandleKeyboardInput(object obj, KeyEventArgs args)
+        static void InitializeFields()
         {
-            switch (args.Code)
-            {
-                case Key.S:
-                    CreateCheckpoint();
-                    break;
-                case Key.Z:
-                    caretaker.StepBack();
-                    shapes = originator.Export();
-                    Console.WriteLine("Undo");
-                    break;
-                case Key.B:
-                    BackupToFile();
-                    break;
-                case Key.L:
-                    LoadFromFile();
-                    break;
-                case Key.Y:
-                    caretaker.StepForward();
-                    shapes = originator.Export();
-                    Console.WriteLine("Redo");
-                    break;
-                case Key.T:
-                    trailEnabled = !trailEnabled;
-                    Console.WriteLine("Trail toggled");
-                    break;
-                case Key.V:
-                    ChangeVisibility();
-                    break;
-                case Key.D:
-                    Deform();
-                    break;
-                case Key.A:
-                    CreateAggregate();
-                    break;
-            }
-        }
-
-        static void HandleMouseInput(object obj, MouseButtonEventArgs args)
-        {
-            switch (args.Button)
-            {
-                case Button.Left:
-                    SelectShape(new Vector2i(args.X, args.Y));
-                    break;
-                case Button.Right:
-                    DeselectShape(new Vector2i(args.X, args.Y));
-                    break;
-            }
+            shapes = new List<IShape>();
+            originator = new Originator();
+            trailEnabled = false;
+            degrees = 0;
+            scene = Scene.Instance;
         }
 
         static bool LoadFromFile() //Recreates figures from file (last checkpoint from previous usage)
@@ -395,9 +352,76 @@ namespace Graphics
             }
         }
 
+        private static void StepForward()
+        {
+            caretaker.StepForward();
+            shapes = originator.Export();
+            Console.WriteLine("Redo");
+        }
+
+        private static void StepBack()
+        {
+            caretaker.StepBack();
+            shapes = originator.Export();
+            Console.WriteLine("Undo");
+        }
+        
+        private static void ToggleTrail()
+        {
+            trailEnabled = !trailEnabled;
+            Console.WriteLine("Trail toggled");
+        }
+        
         static void WindowOnClosed(object sender, EventArgs e)
         {
             Scene.Window.Close();
+        }
+        
+        static void WindowOnKeyPressed(object obj, KeyEventArgs args)
+        {
+            switch (args.Code)
+            {
+                case Key.S:
+                    CreateCheckpoint();
+                    break;
+                case Key.Z:
+                    StepBack();
+                    break;
+                case Key.B:
+                    BackupToFile();
+                    break;
+                case Key.L:
+                    LoadFromFile();
+                    break;
+                case Key.Y:
+                    StepForward();
+                    break;
+                case Key.T:
+                    ToggleTrail();
+                    break;
+                case Key.V:
+                    ChangeVisibility();
+                    break;
+                case Key.D:
+                    Deform();
+                    break;
+                case Key.A:
+                    CreateAggregate();
+                    break;
+            }
+        }
+        
+        static void WindowOnMouseButtonPressed(object obj, MouseButtonEventArgs args)
+        {
+            switch (args.Button)
+            {
+                case Button.Left:
+                    SelectShape(new Vector2i(args.X, args.Y));
+                    break;
+                case Button.Right:
+                    DeselectShape(new Vector2i(args.X, args.Y));
+                    break;
+            }
         }
     }
 }
